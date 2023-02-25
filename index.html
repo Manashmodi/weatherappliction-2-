@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-image: url('R.gif');">
+  <div class="container">
+    <h1 class="text-center">Weather App</h1>
+    <div class="input-group mb-3">
+      <input type="text" id="cityInput" class="form-control" placeholder="Enter a city name">
+      <div class="input-group-append">
+        <button class="btn btn-primary" type="button" onclick="getWeather()">Get Weather</button>
+      </div>
+    </div> 
+    <h1 id="cityName"></h1> <!-- Add this line -->
+    <div id="weatherData"></div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-size: cover;
+  }
+  
+  .container {
+    margin-top: 50px;
+  }
+  
+  .btn-primary {
+    border-radius: 5px;
+    background-color: #2196F3;
+    color: white;
+  }
+  
+  #weatherData {
+    margin-top: 20px;
+  }
+  
+  .day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+  
+  .date {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .temp {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .min {
+    color: #2196F3;
+    margin-right: 10px;
+  }
+  
+  .max {
+    color: #F44336;
+  }
+  
+  .description {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+  }
+  
+  .description img {
+    margin-right: 10px;
+  }
+  
+</style>
+
+<script>
+  function getWeather() {
+    // Get the city name from the input field
+    var city = document.getElementById("cityInput").value;
+
+      // Update the city name element
+  document.getElementById("cityName").innerText = `Weather for ${city}`;
+  
+    // Make a GET request to the OpenWeatherMap API
+    fetch(`http://api.openweathermap.org/data/2.5/forecast/daily?q=${city}&mode=json&units=metric&cnt=5&appid=fbf712a5a83d7305c3cda4ca8fe7ef29`)
+      .then(response => response.json())
+      .then(data => {
+        // Extract the relevant weather data from the API response
+        var weatherData = data.list.map(day => ({
+          date: new Date(day.dt * 1000).toLocaleDateString(),
+          minTemp: day.temp.min,
+          maxTemp: day.temp.max,
+          description: day.weather[0].description,
+          icon: day.weather[0].icon
+        }));
+  
+        // Build the HTML to display the weather data
+        var html = "";
+        weatherData.forEach(day => {
+          html += `
+            <div class="day">
+              <div class="date">${day.date}</div>
+              <div class="temp">
+                <span class="min">${day.minTemp.toFixed(1)}</span>
+                <span class="max">${day.maxTemp.toFixed(1)}</span>
+              </div>
+              <div class="description">
+                <img src="http://openweathermap.org/img/w/${day.icon}.png" alt="${day.description}">
+                <span>${day.description}</span>
+              </div>
+            </div>
+          `;
+        });
+  
+        // Display the weather data on the page
+        document.getElementById("weatherData").innerHTML = html;
+      })
+      .catch(error => {
+        // Handle any errors from the API request
+        console.error(error);
+        alert("Error fetching weather data. Please try again later.");
+      });
+  }
+  
+</script>
